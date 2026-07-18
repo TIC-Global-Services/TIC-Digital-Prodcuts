@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id       String  @id // slug, e.g. "uiux-playbook-ebook"
+  name     String
+  r2Bucket String?
+  r2Key    String?
+  active   Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  purchases Purchase[]
+}
+
+model Customer {
+  id    String @id @default(cuid())
+  email String @unique
+  name  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  purchases Purchase[]
+}
+
+model Purchase {
+  id      String @id @default(cuid())
+  orderId String @unique // Cashfree order id from the source platform — idempotency key
+
+  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId String
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+
+  amount         Decimal @db.Decimal(10, 2)
+  currency       String  @default("INR")
+  cfPaymentId    String?
+  sourcePlatform String  @default("TIC-v2")
+
+  createdAt DateTime @default(now())
+
+  @@index([customerId])
+  @@index([productId])
+}
+
+model MagicLinkToken {
+  id        String    @id @default(cuid())
+  email     String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}

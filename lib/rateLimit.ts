@@ -1,0 +1,21 @@
+// Minimal in-memory sliding-window limiter. Resets per serverless instance —
+// good enough as a basic abuse guard, not a substitute for an edge/WAF-level
+// limiter in high-traffic production.
+const WINDOW_MS = 60_000;
+const MAX_REQUESTS = 5;
+
+const hits = new Map<string, number[]>();
+
+export function isRateLimited(key: string): boolean {
+  const now = Date.now();
+  const timestamps = (hits.get(key) ?? []).filter((t) => now - t < WINDOW_MS);
+
+  if (timestamps.length >= MAX_REQUESTS) {
+    hits.set(key, timestamps);
+    return true;
+  }
+
+  timestamps.push(now);
+  hits.set(key, timestamps);
+  return false;
+}
