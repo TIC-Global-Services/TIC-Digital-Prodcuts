@@ -7,7 +7,7 @@ import {
   createPurchaseIdempotent,
 } from "@/lib/purchases/purchaseService";
 import { issueMagicLinkToken } from "@/lib/auth/magicLink";
-import { sendMagicLinkEmail } from "@/lib/email/sendMagicLink";
+import { sendPurchaseConfirmationEmail } from "@/lib/email/sendMagicLink";
 import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
@@ -64,7 +64,12 @@ export async function POST(req: NextRequest) {
       } else {
         const rawToken = await issueMagicLinkToken(customer.email);
         const magicLinkUrl = `${baseUrl}/api/auth/magic-link/verify?token=${rawToken}`;
-        await sendMagicLinkEmail(customer.email, magicLinkUrl);
+        await sendPurchaseConfirmationEmail({
+          email: customer.email,
+          customerName: customer.name,
+          productName: product.name,
+          magicLinkUrl,
+        });
       }
       logger.info("Purchase ingested", { orderId: order.orderId, productId: product.id });
     } else {

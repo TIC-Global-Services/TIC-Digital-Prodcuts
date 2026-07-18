@@ -3,7 +3,7 @@ import { magicLinkRequestSchema } from "@/lib/validation/auth";
 import { isRateLimited } from "@/lib/rateLimit";
 import { prisma } from "@/lib/db";
 import { issueMagicLinkToken } from "@/lib/auth/magicLink";
-import { sendMagicLinkEmail } from "@/lib/email/sendMagicLink";
+import { sendLoginLinkEmail } from "@/lib/email/sendMagicLink";
 import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     if (baseUrl) {
       const rawToken = await issueMagicLinkToken(email);
       const magicLinkUrl = `${baseUrl}/api/auth/magic-link/verify?token=${rawToken}`;
-      await sendMagicLinkEmail(email, magicLinkUrl);
+      await sendLoginLinkEmail({ email, customerName: customer.name, magicLinkUrl });
     }
 
     return NextResponse.json({ exists: true, message: "Login link sent — check your inbox." });
