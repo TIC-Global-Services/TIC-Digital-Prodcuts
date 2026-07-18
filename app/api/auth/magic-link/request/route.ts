@@ -8,10 +8,6 @@ import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
 
-const GENERIC_RESPONSE = NextResponse.json({
-  message: "If that email has purchases, a login link has been sent.",
-});
-
 export async function POST(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   if (isRateLimited(ip)) {
@@ -32,23 +28,24 @@ export async function POST(req: NextRequest) {
 
   const { email } = parsed.data;
 
-  // Never reveal whether the email exists — always return the generic
-  // response, only send mail when there's actually a customer on file.
   try {
     const customer = await prisma.customer.findUnique({ where: { email } });
-    if (customer) {
-      const baseUrl = process.env.APP_BASE_URL;
-      if (baseUrl) {
-        const rawToken = await issueMagicLinkToken(email);
-        const magicLinkUrl = `${baseUrl}/api/auth/magic-link/verify?token=${rawToken}`;
-        await sendMagicLinkEmail(email, magicLinkUrl);
-      }
+    if (!customer) {
+      return NextResponse.json({ exists: false, message: "No account found for that email." });
     }
+
+    const baseUrl = process.env.APP_BASE_URL;
+    if (baseUrl) {
+      const rawToken = await issueMagicLinkToken(email);
+      const magicLinkUrl = `${baseUrl}/api/auth/magic-link/verify?token=${rawToken}`;
+      await sendMagicLinkEmail(email, magicLinkUrl);
+    }
+
+    return NextResponse.json({ exists: true, message: "Login link sent — check your inbox." });
   } catch (err) {
     logger.error("Magic link request failed", {
       error: err instanceof Error ? err.message : String(err),
     });
+    return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
   }
-
-  return GENERIC_RESPONSE;
 }

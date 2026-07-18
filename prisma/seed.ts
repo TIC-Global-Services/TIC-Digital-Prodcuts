@@ -8,7 +8,7 @@ async function main() {
     update: {},
     create: {
       id: "uiux-playbook-ebook",
-      name: "UI/UX Playbook eBook",
+      name: "A Real UI/UX Sht",
       r2Bucket: process.env.R2_BUCKET ?? null,
       // Set this to the actual object key of the PDF in R2 before going live.
       r2Key: process.env.EBOOK_R2_KEY ?? null,

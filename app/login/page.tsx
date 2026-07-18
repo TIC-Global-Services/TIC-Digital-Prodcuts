@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 
 const ERROR_MESSAGES: Record<string, string> = {
   missing_token: "That login link is missing a token.",
@@ -11,7 +10,7 @@ const ERROR_MESSAGES: Record<string, string> = {
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const [result, setResult] = useState<{ exists: boolean; message: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const error =
@@ -22,31 +21,29 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+    setResult(null);
     try {
-      await fetch("/api/auth/magic-link/request", {
+      const res = await fetch("/api/auth/magic-link/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
+      const body = await res.json();
+      if (!res.ok) {
+        setResult({ exists: false, message: body.error ?? "Something went wrong. Please try again." });
+      } else {
+        setResult({ exists: body.exists, message: body.message });
+      }
+    } catch {
+      setResult({ exists: false, message: "Something went wrong. Please try again." });
     } finally {
       setSubmitting(false);
-      setSubmitted(true);
     }
   };
 
   return (
     <div className="flex flex-1 items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.06)] border border-black/5 p-8">
-        <div className="w-20 h-28 rounded-lg overflow-hidden mb-5 shadow-[0_10px_25px_rgba(0,0,0,0.12)]">
-          <Image
-            src="/ebook/uiux-ebook.jpg"
-            alt="UI/UX Playbook eBook"
-            width={160}
-            height={224}
-            className="w-full h-full object-cover"
-            priority
-          />
-        </div>
         <h1 className="font-[var(--font-aeonik)] text-2xl leading-tight tracking-tight mb-2">
           Access your purchases
         </h1>
@@ -60,11 +57,19 @@ export default function LoginPage() {
           </p>
         )}
 
-        {submitted ? (
-          <p className="text-sm text-[#1a1a1a] bg-[#F4F3EA] border border-black/10 rounded-xl px-4 py-3">
-            If that email has any purchases, a login link is on its way. Check your inbox.
+        {result && (
+          <p
+            className={
+              result.exists
+                ? "text-sm text-[#1a1a1a] bg-[#F4F3EA] border border-black/10 rounded-xl px-4 py-3 mb-4"
+                : "text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-4"
+            }
+          >
+            {result.message}
           </p>
-        ) : (
+        )}
+
+        {result?.exists ? null : (
           <form onSubmit={handleSubmit} className="space-y-3">
             <input
               type="email"
