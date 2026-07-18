@@ -62,6 +62,7 @@ export default async function PortalPage() {
                 </div>
                 <a
                   href={`/api/downloads/${purchase.id}`}
+                  target="_blank"
                   className="shrink-0 inline-flex items-center gap-2 bg-[#1a1a1a] hover:bg-black text-white text-xs sm:text-sm font-medium px-4 sm:px-5 py-2 sm:py-2.5 rounded-full transition-all duration-300 border border-white/10 hover:border-white/20"
                 >
                   Download
