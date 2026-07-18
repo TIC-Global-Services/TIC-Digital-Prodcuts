@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 
 const ERROR_MESSAGES: Record<string, string> = {
   missing_token: "That login link is missing a token.",
@@ -34,21 +35,33 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex flex-1 items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <h1 className="text-xl font-semibold mb-1">Access your purchases</h1>
-        <p className="text-sm text-zinc-500 mb-6">
+    <div className="flex flex-1 items-center justify-center px-4 py-12">
+      <div className="w-full max-w-sm bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.06)] border border-black/5 p-8">
+        <div className="w-20 h-28 rounded-lg overflow-hidden mb-5 shadow-[0_10px_25px_rgba(0,0,0,0.12)]">
+          <Image
+            src="/ebook/uiux-ebook.jpg"
+            alt="UI/UX Playbook eBook"
+            width={160}
+            height={224}
+            className="w-full h-full object-cover"
+            priority
+          />
+        </div>
+        <h1 className="font-[var(--font-aeonik)] text-2xl leading-tight tracking-tight mb-2">
+          Access your purchases
+        </h1>
+        <p className="text-sm text-black/60 mb-6 leading-relaxed">
           Enter the email you used at checkout — we&apos;ll send you a login link.
         </p>
 
         {error && (
-          <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2 mb-4">
+          <p className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-4">
             {error}
           </p>
         )}
 
         {submitted ? (
-          <p className="text-sm text-zinc-700 bg-zinc-50 border border-zinc-200 rounded-md px-3 py-2">
+          <p className="text-sm text-[#1a1a1a] bg-[#F4F3EA] border border-black/10 rounded-xl px-4 py-3">
             If that email has any purchases, a login link is on its way. Check your inbox.
           </p>
         ) : (
@@ -60,12 +73,12 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={submitting}
-              className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
+              className="w-full rounded-full border border-black/15 bg-white px-4 py-2.5 text-sm outline-none focus:border-black/40 disabled:opacity-60"
             />
             <button
               type="submit"
               disabled={submitting}
-              className="w-full rounded-md bg-black text-white text-sm font-medium px-4 py-2 hover:bg-zinc-800 disabled:opacity-60"
+              className="w-full inline-flex items-center justify-center gap-2 bg-[#1a1a1a] hover:bg-black text-white text-sm font-medium px-5 py-2.5 rounded-full transition-all duration-300 border border-white/10 hover:border-white/20 disabled:opacity-60"
             >
               {submitting ? "Sending..." : "Send login link"}
             </button>
