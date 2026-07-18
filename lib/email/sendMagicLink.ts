@@ -32,23 +32,37 @@ function emailShell(params: { preheader: string; bodyHtml: string; ctaLabel: str
   return `
 <!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="color-scheme" content="light only" />
+    <meta name="supported-color-schemes" content="light only" />
+    <style>
+      :root { color-scheme: light only; supported-color-schemes: light only; }
+      body, table, td, a { -webkit-text-size-adjust: 100%; }
+      @media (prefers-color-scheme: dark) {
+        body, .email-bg { background-color:#F4F3EA !important; }
+        .email-card { background-color:#ffffff !important; }
+        .email-text, .email-muted, .email-heading { color:#1a1a1a !important; }
+      }
+    </style>
+  </head>
   <body style="margin:0; padding:0; background-color:#F4F3EA; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
     <span style="display:none; font-size:1px; color:#F4F3EA; line-height:1px; max-height:0; max-width:0; opacity:0; overflow:hidden;">
       ${preheader}
     </span>
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F4F3EA; padding: 32px 16px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#F4F3EA" class="email-bg" style="background-color:#F4F3EA; padding: 32px 16px;">
       <tr>
         <td align="center">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px; background-color:#ffffff; border-radius:16px; overflow:hidden;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#ffffff" class="email-card" style="max-width:480px; background-color:#ffffff; border-radius:16px; overflow:hidden;">
             <tr>
               <td style="padding: 32px 32px 8px 32px;">
-                <p style="margin:0; font-size:13px; letter-spacing:0.08em; text-transform:uppercase; color:#1a1a1a99;">
+                <p class="email-muted" style="margin:0; font-size:13px; letter-spacing:0.08em; text-transform:uppercase; color:#1a1a1a99;">
                   ${BRAND_NAME}
                 </p>
               </td>
             </tr>
             <tr>
-              <td style="padding: 8px 32px 24px 32px; color:#1a1a1a; font-size:15px; line-height:1.6;">
+              <td class="email-text" style="padding: 8px 32px 24px 32px; color:#1a1a1a; font-size:15px; line-height:1.6;">
                 ${bodyHtml}
               </td>
             </tr>
@@ -62,7 +76,7 @@ function emailShell(params: { preheader: string; bodyHtml: string; ctaLabel: str
             </tr>
             <tr>
               <td style="padding: 0 32px 32px 32px; border-top: 1px solid #1a1a1a14; padding-top: 20px;">
-                <p style="margin:0; font-size:12px; color:#1a1a1a80; line-height:1.6;">
+                <p class="email-muted" style="margin:0; font-size:12px; color:#1a1a1a80; line-height:1.6;">
                   This link expires in 15 minutes and can only be used once. If the button doesn't work, copy and paste this URL into your browser:<br />
                   <a href="${ctaUrl}" style="color:#1a1a1a99; word-break:break-all;">${ctaUrl}</a>
                 </p>
